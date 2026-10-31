@@ -1,26 +1,23 @@
 
 import "dotenv/config";
 
-import { connectDatabase } from "./config/db.js";
+import connectDB from "./config/db.js";
 import { createApp } from "./app.js";
 import { connectKafkaProducer } from "./services/kafka.js";
 
 const PORT = Number(process.env.PORT || 4000);
 
-console.log("Starting backend...");
-
 async function startServer() {
   try {
     console.log("Connecting to MongoDB...");
-    await connectDatabase();
+    await connectDB();
 
-    // Connect to Kafka without preventing startup if Kafka is down.
     try {
       console.log("Connecting to Kafka...");
       await connectKafkaProducer();
     } catch (error) {
       console.error("Kafka connection failed:", error.message);
-      console.warn("Backend will start, but Kafka events may not publish.");
+      console.warn("Backend will start without Kafka.");
     }
 
     console.log("Creating Express application...");
@@ -33,12 +30,12 @@ async function startServer() {
       });
     });
 
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
     console.error("Server startup failed:", error.message);
-    process.exitCode = 1;
+    process.exit(1);
   }
 }
 

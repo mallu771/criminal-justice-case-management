@@ -40,3 +40,10 @@ backend/dist/
 
 # Test coverage
 coverage/
+
+# Deployment archives
+*.tar
+*.tar.gz
+
+# Local database backups
+MongoDB-Backups/
